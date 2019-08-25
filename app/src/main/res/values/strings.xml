@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Mypassword</string>
+
+    <string name="biometric_failed">지문인식 실패</string>
+    <string name="biometric_title">My password</string>
+    <string name="biometric_subtitle">로그인</string>
+    <string name="biometric_description">계속하려면 지문 확인 필요</string>
+    <string name="biometric_negative_button_text">취소</string>
+
+</resources>
