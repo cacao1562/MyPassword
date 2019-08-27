@@ -3,6 +3,7 @@ package com.debbi.mypassword.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import io.reactivex.Observable;
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class InputActivity extends RxAppCompatActivity {
 
@@ -27,6 +29,7 @@ public class InputActivity extends RxAppCompatActivity {
     private EditText input_pw;
     private EditText input_note;
     private Realm mRealm;
+    private boolean isAddMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,12 @@ public class InputActivity extends RxAppCompatActivity {
         input_note = findViewById(R.id.input_notes);
 
         mRealm = Realm.getDefaultInstance();
+
+        if (!TextUtils.isEmpty(getIntent().getStringExtra("domain")) ) {
+            input_site.setText(getIntent().getStringExtra("domain"));
+            input_site.setEnabled(false);
+            isAddMode = true;
+        }
 
         Observable<TextViewTextChangeEvent> site_obs = RxTextView.textChangeEvents(input_site);
         Observable<TextViewTextChangeEvent> id_obs = RxTextView.textChangeEvents(input_id);
@@ -66,8 +75,6 @@ public class InputActivity extends RxAppCompatActivity {
 
         mRealm.beginTransaction();
 
-        MyAccount myAccount = mRealm.createObject(MyAccount.class);
-        myAccount.setDomain(input_site.getText().toString());
         AccountData accountData = new AccountData();
         accountData.setAccount(this,
                                 input_id.getText().toString(),
@@ -75,7 +82,17 @@ public class InputActivity extends RxAppCompatActivity {
                                 input_note.getText().toString(),
                                 CommonApplication.getDate("yyyyMMddHHmmss"));
 
-        myAccount.accountData.add(accountData);
+        if (isAddMode) {
+
+            RealmResults<MyAccount> results = mRealm.where(MyAccount.class).equalTo("domain", input_site.getText().toString()).findAll();
+            results.get(0).accountData.add(accountData);
+
+        }else {
+
+            MyAccount myAccount = mRealm.createObject(MyAccount.class);
+            myAccount.setDomain(input_site.getText().toString());
+            myAccount.accountData.add(accountData);
+        }
 
         mRealm.commitTransaction();
 

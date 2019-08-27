@@ -1,10 +1,12 @@
 package com.debbi.mypassword.Activity;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.transition.Explode;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.debbi.mypassword.Adapter.DetailsItemAdapter;
@@ -20,6 +22,7 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView title_textView, domain_textView;
     private Realm mRealm;
     private RecyclerView mRecyclerView;
+    private ImageButton addButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,15 +33,16 @@ public class DetailsActivity extends AppCompatActivity {
         title_textView = findViewById(R.id.detail_title_textview);
         domain_textView = findViewById(R.id.detail_domain_textview);
         mRecyclerView = findViewById(R.id.detail_recyclerView);
+        addButton = findViewById(R.id.detail_add_imgbutton);
 
         mRealm = Realm.getDefaultInstance();
 
         String domain = getIntent().getStringExtra("domain");
+        title_textView.setText(String.valueOf(domain.charAt(0)).toUpperCase());
+        domain_textView.setText(domain);
 
         RealmResults<MyAccount> myAccounts = mRealm.where(MyAccount.class).equalTo("domain", domain).findAll();
-        String deDomain = myAccounts.get(0).getDomain();
-        title_textView.setText(String.valueOf(deDomain.charAt(0)).toUpperCase());
-        domain_textView.setText(deDomain);
+
 
         DetailsItemAdapter detailsItemAdapter = new DetailsItemAdapter(this, myAccounts.get(0).accountData);
         mRecyclerView.setAdapter(detailsItemAdapter);
@@ -48,6 +52,11 @@ public class DetailsActivity extends AppCompatActivity {
             detailsItemAdapter.notifyDataSetChanged();
         });
 
+        addButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, InputActivity.class);
+            intent.putExtra("domain", domain);
+            startActivity(intent);
+        });
 
     }
 
