@@ -67,17 +67,19 @@ public class InputActivity extends RxAppCompatActivity {
         mRealm.beginTransaction();
 
         MyAccount myAccount = mRealm.createObject(MyAccount.class);
-        myAccount.domain = input_site.getText().toString();
+        myAccount.setDomain(input_site.getText().toString());
         AccountData accountData = new AccountData();
-        accountData.id = input_id.getText().toString();
-        accountData.pw = input_pw.getText().toString();
-        accountData.note = input_note.getText().toString();
-        accountData.date = CommonApplication.getDate("yyyyMMddHHmmss"); //"yyyy-MM-dd HH:mm:ss"
+        accountData.setAccount(this,
+                                input_id.getText().toString(),
+                                input_pw.getText().toString(),
+                                input_note.getText().toString(),
+                                CommonApplication.getDate("yyyyMMddHHmmss"));
+
         myAccount.accountData.add(accountData);
 
         mRealm.commitTransaction();
 
-//        finish();
+        finish();
     }
 
 }

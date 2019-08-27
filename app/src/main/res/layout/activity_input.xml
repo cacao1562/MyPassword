@@ -111,7 +111,7 @@
     <Button
         android:id="@+id/input_save_button"
         android:layout_width="0dp"
-        android:layout_height="45dp"
+        android:layout_height="55dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

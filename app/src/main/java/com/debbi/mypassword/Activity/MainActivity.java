@@ -34,7 +34,10 @@ import com.debbi.mypassword.Model.MyAccount;
 import com.debbi.mypassword.R;
 import com.debbi.mypassword.SpacesItemDecoration;
 
+import java.util.List;
+
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity implements CallbackItemclick {
@@ -47,14 +50,16 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
     private ProgressBar progressBar;
     private CardView cardView;
 
-    private FloatingActionButton default_float, add_float, delete_float;
-    private boolean isFloating = false;
-    private boolean isFloating_delete = false;
+    private FloatingActionButton add_floatingButton;
 
     private Realm mRealm;
 
     private LinearLayout bottomLinear;
     private Button itemRemoveButton, itemCloseButton;
+
+    private String[] mRemoveArray;
+
+    private RealmChangeListener mRealmListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +67,14 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         setContentView(R.layout.main2);
 
         mRealm = Realm.getDefaultInstance();
+        Log.d("aaa", "realm config = " + mRealm.getConfiguration());
+        RealmResults<MyAccount> myAccounts = mRealm.where(MyAccount.class).findAll();
+//        mRealm.executeTransaction(new Realm.Transaction() {
+//            @Override
+//            public void execute(Realm realm) {
+//                myAccounts.deleteAllFromRealm();
+//            }
+//        });
 
         intiBindViews();
 
@@ -94,9 +107,7 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         imageView = findViewById(R.id.main_imageView);
         progressBar = findViewById(R.id.main_progress);
         cardView = findViewById(R.id.item_layout_cardview);
-        default_float = findViewById(R.id.main_floating_default_button);
-        add_float = findViewById(R.id.main_floating_add_button);
-        delete_float = findViewById(R.id.main_floating_delete_button);
+        add_floatingButton = findViewById(R.id.main_floating_add_button);
 
         bottomLinear = findViewById(R.id.main_bottom_linear);
         itemRemoveButton = findViewById(R.id.main_item_remove_button);
@@ -138,32 +149,19 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.spacing);
         recyclerView.addItemDecoration(new SpacesItemDecoration(spacingInPixels));
 
-        mRealm.addChangeListener(realm -> {
-            itemAdapter.notifyDataSetChanged();
-        });
+        mRealmListener = new RealmChangeListener() {
+            @Override
+            public void onChange(Object o) {
+                itemAdapter.notifyDataSetChanged();
+            }
+        };
+        mRealm.addChangeListener(mRealmListener);
     }
 
 
     private void setFloatingButton() {
 
-        default_float.setOnClickListener(v -> {
-
-            isFloating = !isFloating;
-
-            if (isFloating) {
-
-                add_float.show();
-                delete_float.show();
-
-            }else {
-
-                add_float.hide();
-                delete_float.hide();
-            }
-
-        });
-
-        add_float.setOnClickListener(v -> {
+        add_floatingButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, InputActivity.class);
             startActivity(intent);
         });
@@ -186,10 +184,19 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
     }
 
     @Override
-    public void onselectedremoveItem(int size) {
+    public void onselectedremoveItem(int size, String[] selectedDomain) {
 
-        bottomLinear.setVisibility(View.VISIBLE);
+        if (add_floatingButton.getVisibility() == View.VISIBLE) {
+            add_floatingButton.hide();
+        }
+        if (bottomLinear.getVisibility() == View.INVISIBLE) {
+            bottomLinear.setVisibility(View.VISIBLE);
+        }
+
+        mRemoveArray = selectedDomain;
+
         itemRemoveButton.setText(size + " 개 항목 삭제하기");
+
 
 //        if (size > 0) {
 //
@@ -207,18 +214,43 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         itemRemoveButton.setOnClickListener(v -> {
 
             CommonApplication.setMode(false);
-            itemAdapter.notifyDataSetChanged();
+
+            Log.d("aaa", "mRemoveArray / length = " + mRemoveArray.length );
+            for (String s : mRemoveArray) {
+//                Log.d("aaa", "mRemoveArray item = " + s );
+            }
+            RealmResults<MyAccount> removeObj = mRealm.where(MyAccount.class).in("domain", mRemoveArray).findAll();
+            mRealm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    removeObj.deleteAllFromRealm();
+                }
+            });
+
+            setDefaultMode();
+
         });
 
         itemCloseButton.setOnClickListener(v -> {
-            CommonApplication.setMode(false);
-            if (bottomLinear.getVisibility() == View.VISIBLE) {
-                bottomLinear.setVisibility(View.INVISIBLE);
-            }
+
+            setDefaultMode();
             itemAdapter.clearSelectedItem();
             itemAdapter.notifyDataSetChanged();
         });
 
+    }
+
+
+    private void setDefaultMode() {
+
+        CommonApplication.setMode(false);
+
+        if (bottomLinear.getVisibility() == View.VISIBLE) {
+            bottomLinear.setVisibility(View.INVISIBLE);
+        }
+        if (add_floatingButton.getVisibility() == View.GONE) {
+            add_floatingButton.show();
+        }
     }
 
     @Override
@@ -226,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         super.onDestroy();
 
         recyclerView.setAdapter(null);
+        mRealm.removeChangeListener(mRealmListener);
         mRealm.close();
     }
 }

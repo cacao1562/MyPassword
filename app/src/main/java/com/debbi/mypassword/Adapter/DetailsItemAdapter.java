@@ -42,12 +42,13 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
     @Override
     public void onBindViewHolder(@NonNull DetailsItemAdapter.DetailsViewHolder detailsViewHolder, int position) {
 
-        detailsViewHolder.date_textview.setText(mRealmList.get(position).date);
-        detailsViewHolder.id_textview.setText(mRealmList.get(position).id);
-        detailsViewHolder.pw_textview.setText(mRealmList.get(position).pw);
-        detailsViewHolder.note_textview.setText(mRealmList.get(position).note);
 
-        if (TextUtils.isEmpty(mRealmList.get(position).note)) {
+        detailsViewHolder.id_textview.setText(mRealmList.get(position).getAccount_ID(mContext));
+        detailsViewHolder.pw_textview.setText(mRealmList.get(position).getAccount_PW(mContext));
+        detailsViewHolder.note_textview.setText(mRealmList.get(position).getAccount_Note(mContext));
+        detailsViewHolder.date_textview.setText(mRealmList.get(position).getAccount_Date(mContext));
+
+        if (TextUtils.isEmpty(mRealmList.get(position).getAccount_Note(mContext))) {
 
             detailsViewHolder.note_linear.setVisibility(View.GONE);
             detailsViewHolder.note_textview.setVisibility(View.GONE);

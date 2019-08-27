@@ -24,6 +24,7 @@ import com.debbi.mypassword.Model.MyAccount;
 import com.debbi.mypassword.R;
 import com.jakewharton.rxbinding2.view.RxView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -70,7 +71,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         }
 
 
-        String domain = mAccountsData.get(position).domain;
+        String domain = mAccountsData.get(position).getDomain();
         String title = String.valueOf(domain.charAt(0)).toUpperCase();
 
         itemViewHolder.titleTextView.setText(title);
@@ -173,12 +174,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
                     int position = getAdapterPosition();
                     toggleItemSelected(position);
-                    mCallback.onselectedremoveItem(mSelectedItems.size());
+
+                    mCallback.onselectedremoveItem(mSelectedItems.size(), getSeletedDomain());
 
                 }else {
 
                     View[] views = {this.cardView, this.nameTextView};
-                    mCallback.onclickItem(getAdapterPosition(), views, mAccountsData.get(getAdapterPosition()).domain );
+                    mCallback.onclickItem(getAdapterPosition(), views, mAccountsData.get(getAdapterPosition()).getDomain() );
                 }
 
             }, Throwable::printStackTrace);
@@ -215,7 +217,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
                         int position = getAdapterPosition();
                         toggleItemSelected(position);
-                        mCallback.onselectedremoveItem(mSelectedItems.size());
+                        mCallback.onselectedremoveItem(mSelectedItems.size(), getSeletedDomain());
                         notifyDataSetChanged();
                     }
 
@@ -245,6 +247,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
     private boolean isItemSelected(int position) {
         return mSelectedItems.get(position, false);
+    }
+
+    private String[] getSeletedDomain() {
+
+        List<String> seletedDomain = new ArrayList<>();
+
+        for (int i=0;  i<mSelectedItems.size(); i++) {
+            int itemIndex = mSelectedItems.keyAt(i);
+            seletedDomain.add(mAccountsData.get(itemIndex).getDomain() );
+        }
+        return seletedDomain.toArray(new String[seletedDomain.size()]);
     }
 
     public void clearSelectedItem() {

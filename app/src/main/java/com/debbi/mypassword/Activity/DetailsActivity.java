@@ -34,10 +34,11 @@ public class DetailsActivity extends AppCompatActivity {
         mRealm = Realm.getDefaultInstance();
 
         String domain = getIntent().getStringExtra("domain");
-        title_textView.setText(String.valueOf(domain.charAt(0)).toUpperCase());
-        domain_textView.setText(domain);
 
         RealmResults<MyAccount> myAccounts = mRealm.where(MyAccount.class).equalTo("domain", domain).findAll();
+        String deDomain = myAccounts.get(0).getDomain();
+        title_textView.setText(String.valueOf(deDomain.charAt(0)).toUpperCase());
+        domain_textView.setText(deDomain);
 
         DetailsItemAdapter detailsItemAdapter = new DetailsItemAdapter(this, myAccounts.get(0).accountData);
         mRecyclerView.setAdapter(detailsItemAdapter);
