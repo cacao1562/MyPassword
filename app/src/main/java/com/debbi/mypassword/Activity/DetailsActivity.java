@@ -44,7 +44,7 @@ public class DetailsActivity extends AppCompatActivity {
         RealmResults<MyAccount> myAccounts = mRealm.where(MyAccount.class).equalTo("domain", domain).findAll();
 
 
-        DetailsItemAdapter detailsItemAdapter = new DetailsItemAdapter(this, myAccounts.get(0).accountData);
+        DetailsItemAdapter detailsItemAdapter = new DetailsItemAdapter(this, myAccounts.get(0).accountData, domain);
         mRecyclerView.setAdapter(detailsItemAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 

@@ -1,6 +1,7 @@
 package com.debbi.mypassword.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -13,9 +14,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.debbi.mypassword.Activity.InputActivity;
 import com.debbi.mypassword.Model.AccountData;
 import com.debbi.mypassword.R;
 
+import io.realm.Realm;
 import io.realm.RealmList;
 
 public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.DetailsViewHolder> {
@@ -24,10 +27,12 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
     private RealmList<AccountData> mRealmList;
     private SparseBooleanArray selectedItems = new SparseBooleanArray();
     private int prePosition = -1;
+    private String mDomain;
 
-    public DetailsItemAdapter(Context context, RealmList<AccountData> realmList) {
+    public DetailsItemAdapter(Context context, RealmList<AccountData> realmList, String domain) {
         this.mContext = context;
         this.mRealmList = realmList;
+        this.mDomain = domain;
     }
 
     @NonNull
@@ -48,19 +53,22 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
         detailsViewHolder.note_textview.setText(mRealmList.get(position).getAccount_Note(mContext));
         detailsViewHolder.date_textview.setText(mRealmList.get(position).getAccount_Date(mContext));
 
-        if (TextUtils.isEmpty(mRealmList.get(position).getAccount_Note(mContext))) {
+//        if (TextUtils.isEmpty(mRealmList.get(position).getAccount_Note(mContext))) {
+//
+//            detailsViewHolder.note_linear.setVisibility(View.GONE);
+//            detailsViewHolder.note_textview.setVisibility(View.GONE);
+//
+//        }else {
+//
+//            detailsViewHolder.note_linear.setVisibility(View.VISIBLE);
+////            detailsViewHolder.note_textview.setVisibility(View.GONE);
+//            detailsViewHolder.note_linear.setVisibility(TextUtils.isEmpty(mRealmList.get(position).getAccount_Note(mContext)) ? View.GONE : View.VISIBLE );
+//            detailsViewHolder.note_textview.setVisibility(selectedItems.get(position) ? View.VISIBLE : View.GONE);
+//
+//        }
 
-            detailsViewHolder.note_linear.setVisibility(View.GONE);
-            detailsViewHolder.note_textview.setVisibility(View.GONE);
-
-        }else {
-
-            detailsViewHolder.note_linear.setVisibility(View.VISIBLE);
-            detailsViewHolder.note_textview.setVisibility(View.GONE);
-
-            detailsViewHolder.note_textview.setVisibility(selectedItems.get(position) ? View.VISIBLE : View.GONE);
-
-        }
+        detailsViewHolder.note_linear.setVisibility(TextUtils.isEmpty(mRealmList.get(position).getAccount_Note(mContext)) ? View.GONE : View.VISIBLE );
+        detailsViewHolder.note_textview.setVisibility(selectedItems.get(position) ? View.VISIBLE : View.GONE);
 
     }
 
@@ -99,12 +107,28 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
 
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
+
                         switch (item.getItemId()) {
+
                             case R.id.modify:
                                 //handle menu1 click
+                                Intent intent = new Intent(mContext, InputActivity.class);
+                                intent.putExtra("domain", mDomain);
+                                intent.putExtra("id", mRealmList.get(getAdapterPosition()).getAccount_ID(mContext));
+                                intent.putExtra("pw", mRealmList.get(getAdapterPosition()).getAccount_PW(mContext));
+                                intent.putExtra("note", mRealmList.get(getAdapterPosition()).getAccount_Note(mContext));
+                                mContext.startActivity(intent);
                                 break;
+
                             case R.id.delete:
                                 //handle menu2 click
+                                Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                                    @Override
+                                    public void execute(Realm realm) {
+                                        mRealmList.get(getAdapterPosition()).deleteFromRealm();
+                                    }
+                                });
+                                popup.dismiss();
                                 break;
                         }
                         return false;
@@ -128,8 +152,14 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
                     selectedItems.put(getAdapterPosition(), true);
                 }
                 // 해당 포지션의 변화를 알림
-                if (prePosition != -1) notifyItemChanged(prePosition);
-                notifyItemChanged(getAdapterPosition());
+                if (prePosition != -1) {
+                    notifyItemChanged(prePosition);
+                }
+
+                if (prePosition != getAdapterPosition()) {
+                    notifyItemChanged(getAdapterPosition());
+                }
+
                 // 클릭된 position 저장
                 prePosition = getAdapterPosition();
 

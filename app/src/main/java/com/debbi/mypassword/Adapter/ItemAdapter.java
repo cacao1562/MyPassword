@@ -175,7 +175,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
                     int position = getAdapterPosition();
                     toggleItemSelected(position);
 
-                    mCallback.onselectedremoveItem(mSelectedItems.size(), getSeletedDomain());
+                    mCallback.onselectedremoveItem(mSelectedItems.size(), getSeletedDomain() );
 
                 }else {
 
@@ -217,7 +217,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
                         int position = getAdapterPosition();
                         toggleItemSelected(position);
-                        mCallback.onselectedremoveItem(mSelectedItems.size(), getSeletedDomain());
+                        mCallback.onselectedremoveItem(mSelectedItems.size(), getSeletedDomain() );
                         notifyDataSetChanged();
                     }
 

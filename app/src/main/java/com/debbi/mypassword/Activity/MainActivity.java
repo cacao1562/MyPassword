@@ -34,7 +34,6 @@ import com.debbi.mypassword.Model.MyAccount;
 import com.debbi.mypassword.R;
 import com.debbi.mypassword.SpacesItemDecoration;
 
-import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -213,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
 
         itemRemoveButton.setOnClickListener(v -> {
 
-            CommonApplication.setMode(false);
 
             Log.d("aaa", "mRemoveArray / length = " + mRemoveArray.length );
             for (String s : mRemoveArray) {
@@ -228,6 +226,8 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
             });
 
             setDefaultMode();
+
+            mRemoveArray = null;
 
         });
 
