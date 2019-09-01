@@ -97,8 +97,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 //        return 20;
     }
 
-    public void setDataRefresh(List<String> list) {
+    public void setDataRefresh(RealmResults<MyAccount> searchDdata) {
 
+        mAccountsData = searchDdata;
+        notifyDataSetChanged();
     }
 
     @Override

@@ -70,5 +70,8 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        if (!mRealm.isClosed()) {
+            mRealm.close();
+        }
     }
 }

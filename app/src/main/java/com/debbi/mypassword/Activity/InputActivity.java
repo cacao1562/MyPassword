@@ -141,6 +141,7 @@ public class InputActivity extends RxAppCompatActivity {
             MyAccount myAccount = mRealm.createObject(MyAccount.class);
             myAccount.setDomain(input_site.getText().toString());
             myAccount.accountData.add(accountData);
+            myAccount.date = CommonApplication.getDate("yyyyMMddHHmmss");
         }
 
         mRealm.commitTransaction();
@@ -148,4 +149,13 @@ public class InputActivity extends RxAppCompatActivity {
         finish();
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (!mRealm.isClosed()) {
+            mRealm.close();
+        }
+    }
 }

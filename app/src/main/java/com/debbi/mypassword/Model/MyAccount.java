@@ -19,35 +19,7 @@ public class MyAccount extends RealmObject {
 
     public RealmList<AccountData> accountData;
 
-//    public void setDomain(Context context, String domain) {
-//
-//        try {
-//
-//            String enDomain = RsaUtil.encryptString(context, domain);
-//            this.domain = enDomain;
-////            Log.d("aaa", "setDomain domain = " + domain );
-////            Log.d("aaa", "setDomain  enDomain = " + enDomain );
-//
-//        }catch (Exception e) {
-//
-//            Log.d("aaa", "Exception setDomain = " + e.toString() );
-//        }
-//
-//    }
-//
-//    public String getDomain(Context context) {
-//
-//        try {
-//            String deDomain = RsaUtil.decryptString(context, this.domain);
-////            Log.d("aaa", "getDomain domain = " + this.domain );
-////            Log.d("aaa", "getDomain  deDomain = " + deDomain );
-//            return deDomain;
-//        }catch (Exception e) {
-//
-//            Log.d("aaa", "Exception getDomain = " + e.toString() );
-//        }
-//        return null;
-//    }
+    public String date;
 
     public void setDomain(String domain) {
         this.domain = domain;

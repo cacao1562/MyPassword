@@ -122,12 +122,14 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
 
                             case R.id.delete:
                                 //handle menu2 click
-                                Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                                Realm realm = Realm.getDefaultInstance();
+                                        realm.executeTransaction(new Realm.Transaction() {
                                     @Override
                                     public void execute(Realm realm) {
                                         mRealmList.get(getAdapterPosition()).deleteFromRealm();
                                     }
                                 });
+                                        realm.close();
                                 popup.dismiss();
                                 break;
                         }

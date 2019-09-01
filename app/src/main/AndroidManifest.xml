@@ -17,10 +17,25 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity android:name=".Activity.InputActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize"></activity>
-        <activity android:name=".Activity.DetailsActivity" />
-        <activity android:name=".Activity.MainActivity" />
-        <activity android:name=".Activity.SplashActivity">
+        <activity android:name=".Activity.DetailsActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".Activity.MainActivity"
+            android:theme="@style/AppTheme.NoActionBarTransparent">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+
+
+        <activity android:name=".Activity.SplashActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

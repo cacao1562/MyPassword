@@ -13,9 +13,13 @@ import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -35,9 +39,16 @@ import com.debbi.mypassword.R;
 import com.debbi.mypassword.SpacesItemDecoration;
 
 
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 public class MainActivity extends AppCompatActivity implements CallbackItemclick {
 
@@ -59,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
     private String[] mRemoveArray;
 
     private RealmChangeListener mRealmListener;
+    private android.support.v7.widget.SearchView searchView;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +92,10 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
 
         setSupportActionBar(toolbar);
 //        toolbar.setTitle("");
+
         getSupportActionBar().setTitle(null);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         progressBar.setVisibility(View.VISIBLE);
 
@@ -95,6 +111,94 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         });
 
         initOnclickItemButtons();
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+//        return super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.search, toolbar.getMenu());
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (android.support.v7.widget.SearchView) searchItem.getActionView();
+        searchView.setQueryHint("Search ");
+//        searchView.setIconified(false);
+
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("aaa", "onClick = " );
+            }
+        });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                Log.d("aaa", "onClose = " );
+                return false;
+            }
+        });
+
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Log.d("aaa", "onFocusChange = " + hasFocus + " isIconified" + searchView.isIconified() );
+            }
+        });
+        searchView.setOnQueryTextListener(getOnQueryTextListener());
+
+        return true;
+    }
+
+    private SearchView.OnQueryTextListener getOnQueryTextListener() {
+
+        return new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                Log.d("aaa", "onQueryTextChange = " + s);
+                Disposable disposable = Observable.just(s)
+//                                                .debounce(2, TimeUnit.SECONDS)
+//                        .filter(str -> !TextUtils.isEmpty(str))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(t -> {
+                            Log.d("aaa", "ttt = " + t);
+                            if (TextUtils.isEmpty(t)) {
+
+                            }else {
+
+                                RealmResults<MyAccount> result = mRealm.where(MyAccount.class).like("domain", "*" + t + "*").findAll();
+                                itemAdapter.setDataRefresh(result);
+//                                                    if (result.size() == 0 || result == null) {
+//                                                        RealmResults<MyAccount> result2 = mRealm.where(MyAccount.class).findAll();
+//                                                        for ( MyAccount myAccount : result2) {
+//                                                            myAccount.accountData.where().like("id", "*"+t+"*").like("pw", "*"+t+"*").like("note","*"+t+"*").findAll();
+//                                                        }
+//                                                    }
+                            }
+
+                        });
+
+                compositeDisposable.add(disposable);
+
+                return false;
+            }
+        };
+    }
+
+
+    @Override
+    public void onBackPressed() {
+
+        if (!searchView.isIconified()) {
+            searchView.setIconified(true);
+        }else {
+            super.onBackPressed();
+        }
 
     }
 
@@ -139,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
 
     private void initRecyclerView() {
 
-        RealmResults<MyAccount> myAccounts = mRealm.where(MyAccount.class).findAll();
+        RealmResults<MyAccount> myAccounts = mRealm.where(MyAccount.class).findAll().sort("date", Sort.DESCENDING);
 
         itemAdapter = new ItemAdapter(this, myAccounts,this);
 
@@ -257,8 +361,14 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
     protected void onDestroy() {
         super.onDestroy();
 
+        /** Adapter 에 null을 줘야 onDetachedFromRecyclerView 호출됨 */
         recyclerView.setAdapter(null);
-        mRealm.removeChangeListener(mRealmListener);
-        mRealm.close();
+        compositeDisposable.dispose();
+
+        if (!mRealm.isClosed()) {
+            mRealm.removeChangeListener(mRealmListener);
+            mRealm.close();
+        }
+
     }
 }
