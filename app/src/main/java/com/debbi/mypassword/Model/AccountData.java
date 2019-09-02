@@ -89,4 +89,13 @@ public class AccountData extends RealmObject {
     }
 
 
+    public String getstr(Context context) {
+
+        String str = "";
+        str = str + getAccount_ID(context);
+        str = str + getAccount_PW(context);
+        str = str + getAccount_Note(context);
+        return str;
+    }
+
 }

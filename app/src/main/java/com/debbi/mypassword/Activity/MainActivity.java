@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -34,17 +36,23 @@ import com.bumptech.glide.request.target.Target;
 import com.debbi.mypassword.CallbackItemclick;
 import com.debbi.mypassword.CommonApplication;
 import com.debbi.mypassword.Adapter.ItemAdapter;
+import com.debbi.mypassword.Model.AccountData;
 import com.debbi.mypassword.Model.MyAccount;
 import com.debbi.mypassword.R;
 import com.debbi.mypassword.SpacesItemDecoration;
+import com.jakewharton.rxbinding2.widget.RxSearchView;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -59,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
     private ImageView imageView;
     private ProgressBar progressBar;
     private CardView cardView;
+    private TextView noResultTextview;
+    private AppBarLayout appBarLayout;
 
     private FloatingActionButton add_floatingButton;
 
@@ -70,8 +80,11 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
     private String[] mRemoveArray;
 
     private RealmChangeListener mRealmListener;
-    private android.support.v7.widget.SearchView searchView;
+    private android.widget.SearchView searchView;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private RealmResults<MyAccount> mMyAccounts;
+
+    private boolean isAppbarFocus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +93,8 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
 
         mRealm = Realm.getDefaultInstance();
         Log.d("aaa", "realm config = " + mRealm.getConfiguration());
-        RealmResults<MyAccount> myAccounts = mRealm.where(MyAccount.class).findAll();
+
+        mMyAccounts = mRealm.where(MyAccount.class).findAll().sort("date", Sort.DESCENDING);;
 //        mRealm.executeTransaction(new Realm.Transaction() {
 //            @Override
 //            public void execute(Realm realm) {
@@ -103,12 +117,12 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         initRecyclerView();
         setFloatingButton();
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
+//        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+//            @Override
+//            public void onRefresh() {
+//                swipeRefreshLayout.setRefreshing(false);
+//            }
+//        });
 
         initOnclickItemButtons();
 
@@ -120,33 +134,122 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
 //        return super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.search, toolbar.getMenu());
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        searchView = (android.support.v7.widget.SearchView) searchItem.getActionView();
+        searchView = (android.widget.SearchView) searchItem.getActionView();
         searchView.setQueryHint("Search ");
 //        searchView.setIconified(false);
-
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("aaa", "onClick = " );
-            }
-        });
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+        searchView.setOnCloseListener(new android.widget.SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                Log.d("aaa", "onClose = " );
+                Log.d("aaa", "onClose = ");
+                setShowNoResult(false);
+                itemAdapter.setDataRefresh(getcurrentList());
                 return false;
             }
         });
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("aaa", "onClick = ");
+            }
+        });
+//        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+//            @Override
+//            public boolean onClose() {
+//                Log.d("aaa", "onClose = ");
+//                setShowNoResult(false);
+//                itemAdapter.setDataRefresh(getcurrentList());
+//                return false;
+//            }
+//        });
 
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                Log.d("aaa", "onFocusChange = " + hasFocus + " isIconified" + searchView.isIconified() );
+                Log.d("aaa", "onFocusChange = " + hasFocus + " isIconified" + searchView.isIconified());
+                if (hasFocus) {
+                    isAppbarFocus = true;
+                    appBarLayout.setExpanded(false);
+                }else {
+                    isAppbarFocus = false;
+                    appBarLayout.setExpanded(true);
+                }
             }
         });
-        searchView.setOnQueryTextListener(getOnQueryTextListener());
+//        searchView.setOnQueryTextListener(getOnQueryTextListener());
+        RxSearchView.queryTextChanges(searchView)
+                .debounce(1, TimeUnit.SECONDS) // stream will go down after 1 second inactivity of user
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<CharSequence>() {
+                    @Override
+                    public void accept(@NonNull CharSequence charSequence) throws Exception {
+                        // perform necessary operation with `charSequence`
 
+                        Log.d("aaa", "accept = " + charSequence.toString() );
+                        findInputText(charSequence.toString());
+                    }
+                });
         return true;
+    }
+
+    private void findInputText(String str) {
+
+        if (TextUtils.isEmpty(str)) {
+
+            if (isAppbarFocus) {
+                setShowNoResult(true);
+                itemAdapter.setDataRefresh(new ArrayList<>());
+            }
+
+            return;
+        }
+//                            RealmResults<MyAccount> result = mRealm.where(MyAccount.class).like("domain", "*" + t + "*").findAll();
+        RealmResults<MyAccount> result = mMyAccounts.where().like("domain", "*" + str + "*").findAll();
+        List<MyAccount> list = mRealm.copyFromRealm(result);
+        itemAdapter.setDataRefresh(list);
+
+        if (result.size() > 0) {
+
+            setShowNoResult(false);
+
+        } else {
+
+            List<MyAccount> findAccount = new ArrayList<>();
+
+            for (MyAccount myAccount : mMyAccounts) {
+
+                for (AccountData accountData : myAccount.accountData) {
+
+                    if (accountData.getstr(MainActivity.this).contains(str) ) {
+
+                        findAccount.add(myAccount);
+                    }
+                }
+            }
+
+            itemAdapter.setDataRefresh(findAccount);
+
+            if (findAccount.size() > 0) {
+
+                setShowNoResult(false);
+
+            }else {
+
+                setShowNoResult(true);
+            }
+
+        }
+    }
+
+    private void setShowNoResult(boolean show) {
+
+        if (show) {
+
+            noResultTextview.setVisibility(View.VISIBLE);
+
+        } else {
+
+            noResultTextview.setVisibility(View.GONE);
+        }
     }
 
     private SearchView.OnQueryTextListener getOnQueryTextListener() {
@@ -167,19 +270,56 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(t -> {
                             Log.d("aaa", "ttt = " + t);
+
+
                             if (TextUtils.isEmpty(t)) {
+                                setShowNoResult(true);
+                                return;
+                            }
+//                            RealmResults<MyAccount> result = mRealm.where(MyAccount.class).like("domain", "*" + t + "*").findAll();
+                            RealmResults<MyAccount> result = mMyAccounts.where().like("domain", "*" + t + "*").findAll();
+                            List<MyAccount> list = mRealm.copyFromRealm(result);
+                            itemAdapter.setDataRefresh(list);
 
-                            }else {
+                            if (result.size() > 0) {
 
-                                RealmResults<MyAccount> result = mRealm.where(MyAccount.class).like("domain", "*" + t + "*").findAll();
-                                itemAdapter.setDataRefresh(result);
+                                setShowNoResult(false);
+
+                            } else {
+
+                                List<MyAccount> findAccount = new ArrayList<>();
+
+                                for (MyAccount myAccount : mMyAccounts) {
+
+                                    for (AccountData accountData : myAccount.accountData) {
+
+                                        if (accountData.getstr(MainActivity.this).contains(t) ) {
+
+                                            findAccount.add(myAccount);
+                                        }
+                                    }
+                                }
+
+                                itemAdapter.setDataRefresh(findAccount);
+
+                                if (findAccount.size() > 0) {
+
+                                    setShowNoResult(false);
+
+                                }else {
+
+                                    setShowNoResult(true);
+                                }
+
+                            }
+
 //                                                    if (result.size() == 0 || result == null) {
 //                                                        RealmResults<MyAccount> result2 = mRealm.where(MyAccount.class).findAll();
 //                                                        for ( MyAccount myAccount : result2) {
 //                                                            myAccount.accountData.where().like("id", "*"+t+"*").like("pw", "*"+t+"*").like("note","*"+t+"*").findAll();
 //                                                        }
 //                                                    }
-                            }
+
 
                         });
 
@@ -195,8 +335,12 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
     public void onBackPressed() {
 
         if (!searchView.isIconified()) {
-            searchView.setIconified(true);
-        }else {
+            searchView.setIconified(true); // 아이콘으로 축소
+            setShowNoResult(false);
+            itemAdapter.setDataRefresh(getcurrentList());
+            appBarLayout.setExpanded(true);
+
+        } else {
             super.onBackPressed();
         }
 
@@ -206,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
 
         toolbar = findViewById(R.id.toolbar);
         recyclerView = findViewById(R.id.main_recyclerView);
-        swipeRefreshLayout = findViewById(R.id.swipeLayout);
+//        swipeRefreshLayout = findViewById(R.id.swipeLayout);
         imageView = findViewById(R.id.main_imageView);
         progressBar = findViewById(R.id.main_progress);
         cardView = findViewById(R.id.item_layout_cardview);
@@ -215,6 +359,9 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         bottomLinear = findViewById(R.id.main_bottom_linear);
         itemRemoveButton = findViewById(R.id.main_item_remove_button);
         itemCloseButton = findViewById(R.id.main_item_close_button);
+
+        noResultTextview = findViewById(R.id.main_no_result_textview);
+        appBarLayout = findViewById(R.id.AppBar);
     }
 
 
@@ -243,9 +390,10 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
 
     private void initRecyclerView() {
 
-        RealmResults<MyAccount> myAccounts = mRealm.where(MyAccount.class).findAll().sort("date", Sort.DESCENDING);
+//        RealmResults<MyAccount> myAccounts = mRealm.where(MyAccount.class).findAll().sort("date", Sort.DESCENDING);
 
-        itemAdapter = new ItemAdapter(this, myAccounts,this);
+
+        itemAdapter = new ItemAdapter(this, getcurrentList(), this);
 
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerView.setAdapter(itemAdapter);
@@ -255,10 +403,15 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         mRealmListener = new RealmChangeListener() {
             @Override
             public void onChange(Object o) {
-                itemAdapter.notifyDataSetChanged();
+                itemAdapter.setDataRefresh(getcurrentList());
+//                itemAdapter.notifyDataSetChanged();
             }
         };
         mRealm.addChangeListener(mRealmListener);
+    }
+
+    private List<MyAccount> getcurrentList() {
+        return mRealm.copyFromRealm(mMyAccounts);
     }
 
 
@@ -268,7 +421,6 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
             Intent intent = new Intent(this, InputActivity.class);
             startActivity(intent);
         });
-
 
     }
 
@@ -281,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
                 Pair.create(views[1], "itemText"));
 
 
-        Intent in = new Intent(this,DetailsActivity.class);
+        Intent in = new Intent(this, DetailsActivity.class);
         in.putExtra("domain", domain);
         startActivity(in, options.toBundle());
     }
@@ -317,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         itemRemoveButton.setOnClickListener(v -> {
 
 
-            Log.d("aaa", "mRemoveArray / length = " + mRemoveArray.length );
+            Log.d("aaa", "mRemoveArray / length = " + mRemoveArray.length);
             for (String s : mRemoveArray) {
 //                Log.d("aaa", "mRemoveArray item = " + s );
             }

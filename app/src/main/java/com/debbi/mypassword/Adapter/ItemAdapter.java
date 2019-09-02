@@ -39,12 +39,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private Context mContext;
     private CallbackItemclick mCallback;
     private SparseBooleanArray mSelectedItems = new SparseBooleanArray(0);
-    private RealmResults<MyAccount> mAccountsData;
+    private List<MyAccount> mAccountsData;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
-    public ItemAdapter(Context mContext, RealmResults<MyAccount> myAccounts, CallbackItemclick callbackItemclick) {
+    public ItemAdapter(Context mContext, List<MyAccount> myAccounts, CallbackItemclick callbackItemclick) {
         this.mContext = mContext;
         this.mAccountsData = myAccounts;
         this.mCallback = callbackItemclick;
@@ -97,7 +97,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 //        return 20;
     }
 
-    public void setDataRefresh(RealmResults<MyAccount> searchDdata) {
+    public void setDataRefresh(List<MyAccount> searchDdata) {
 
         mAccountsData = searchDdata;
         notifyDataSetChanged();
