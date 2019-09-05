@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import android.hardware.biometrics.BiometricPrompt;
 import android.os.Build;
 import android.os.CancellationSignal;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 
 public class BiometricManager extends BiometricManagerV23 {

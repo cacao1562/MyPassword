@@ -1,24 +1,20 @@
 package com.debbi.mypassword.Activity;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.transition.Explode;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.debbi.mypassword.Adapter.DetailsItemAdapter;
 import com.debbi.mypassword.Model.MyAccount;
 import com.debbi.mypassword.R;
-import com.jakewharton.rxbinding2.view.RxView;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.Sort;
 
 public class DetailsActivity extends AppCompatActivity {
 

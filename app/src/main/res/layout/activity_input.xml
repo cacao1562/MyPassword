@@ -12,7 +12,7 @@
         android:layout_weight="1"
         android:fillViewport="true">
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
@@ -31,7 +31,7 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/main_id_layout1"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                     android:layout_width="match_parent"
@@ -40,7 +40,7 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <android.support.design.widget.TextInputEditText
+                    <com.google.android.material.textfield.TextInputEditText
 
                         android:id="@+id/input_site"
                         android:layout_width="match_parent"
@@ -51,7 +51,7 @@
                         android:textSize="15dp" />
 
 
-                </android.support.design.widget.TextInputLayout>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageButton
                     android:id="@+id/input_clear_imgbutton1"
@@ -78,7 +78,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/frame1">
 
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
 
                     android:id="@+id/main_id_layout2"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
@@ -89,7 +89,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/main_id_layout1">
 
 
-                    <android.support.design.widget.TextInputEditText
+                    <com.google.android.material.textfield.TextInputEditText
 
                         android:id="@+id/input_id"
                         android:layout_width="match_parent"
@@ -100,7 +100,7 @@
                         android:textSize="15dp" />
 
 
-                </android.support.design.widget.TextInputLayout>
+                </com.google.android.material.textfield.TextInputLayout>
 
 
                 <ImageButton
@@ -127,7 +127,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/frame2">
 
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
 
                     android:id="@+id/main_id_layout3"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
@@ -138,7 +138,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/frame2"
                     app:passwordToggleEnabled="true">
 
-                    <android.support.design.widget.TextInputEditText
+                    <com.google.android.material.textfield.TextInputEditText
 
                         android:id="@+id/input_pw"
                         android:layout_width="match_parent"
@@ -148,7 +148,7 @@
                         android:textColor="@color/black"
                         android:textSize="15dp" />
 
-                </android.support.design.widget.TextInputLayout>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageButton
                     android:id="@+id/input_clear_imgbutton3"
@@ -174,7 +174,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/frame3">
 
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
 
                     android:id="@+id/main_id_layout4"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
@@ -185,7 +185,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/main_id_layout3">
 
 
-                    <android.support.design.widget.TextInputEditText
+                    <com.google.android.material.textfield.TextInputEditText
 
                         android:id="@+id/input_notes"
                         android:layout_width="match_parent"
@@ -199,7 +199,7 @@
                         android:textSize="15dp" />
 
 
-                </android.support.design.widget.TextInputLayout>
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageButton
                     android:id="@+id/input_clear_imgbutton4"
@@ -214,7 +214,7 @@
             </FrameLayout>
 
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
 

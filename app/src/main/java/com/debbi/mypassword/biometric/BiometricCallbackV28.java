@@ -2,7 +2,7 @@ package com.debbi.mypassword.biometric;
 
 import android.hardware.biometrics.BiometricPrompt;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 
 @RequiresApi(api = Build.VERSION_CODES.P)

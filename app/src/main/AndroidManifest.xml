@@ -18,10 +18,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+
         <activity android:name=".Activity.InputActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize"></activity>
         <activity android:name=".Activity.DetailsActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".Activity.SettingActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity android:name=".Activity.MainActivity"

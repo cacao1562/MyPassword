@@ -1,9 +1,14 @@
 package com.debbi.mypassword;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.debbi.mypassword.Utils.RSA_Cipher;
 
@@ -28,6 +33,8 @@ public class CommonApplication extends Application {
 
     public static String PackageName;
 
+    private static CommonApplication mCommon;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -39,6 +46,11 @@ public class CommonApplication extends Application {
         Realm.setDefaultConfiguration(realmConfiguration);
 
         PackageName = this.getPackageName();
+        mCommon = this;
+    }
+
+    public static CommonApplication getContext() {
+        return mCommon;
     }
 
     public static String getDate(String format) {
@@ -46,6 +58,27 @@ public class CommonApplication extends Application {
         Date c = Calendar.getInstance().getTime();
         SimpleDateFormat df = new SimpleDateFormat(format);
         return df.format(c);
+
+    }
+
+    public void showAlert(String title , String msg , final Context context) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context,R.style.DialogStyle);
+        builder.setTitle(title);
+        builder.setMessage(msg);
+//        builder.setNegativeButton("취소", null);
+        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+//                ((Activity)context).finish();
+            }
+        });
+
+        builder.setCancelable(false);
+        AlertDialog dialog = builder.create();
+        dialog.show();
 
     }
 

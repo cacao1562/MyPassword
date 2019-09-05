@@ -4,7 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,7 +18,7 @@ import io.realm.Realm;
 public class RealmBackupRestore {
 
     private File EXPORT_REALM_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-    private String EXPORT_REALM_FILE_NAME = "glucosio.realm";
+    private String EXPORT_REALM_FILE_NAME = "backupRealm.realm";
     private String IMPORT_REALM_FILE_NAME = "default.realm"; // Eventually replace this if you're using a custom db name
 
     private final static String TAG = RealmBackupRestore.class.getName();
@@ -40,7 +40,7 @@ public class RealmBackupRestore {
 
     public void backup() {
         // First check if we have storage permissions
-        checkStoragePermissions(activity);
+//        checkStoragePermissions(activity);
         File exportRealmFile;
 
         Log.d(TAG, "Realm DB Path = " + realm.getPath());
@@ -64,7 +64,7 @@ public class RealmBackupRestore {
     }
 
     public void restore() {
-        checkStoragePermissions(activity);
+//        checkStoragePermissions(activity);
         //Restore
         String restoreFilePath = EXPORT_REALM_PATH + "/" + EXPORT_REALM_FILE_NAME;
 

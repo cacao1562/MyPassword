@@ -1,16 +1,14 @@
 package com.debbi.mypassword.Activity;
 
-import android.content.Intent;
 import android.os.SystemClock;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.debbi.mypassword.CommonApplication;
 import com.debbi.mypassword.Model.AccountData;
@@ -21,12 +19,9 @@ import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.jakewharton.rxbinding2.widget.TextViewTextChangeEvent;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
-import org.w3c.dom.Text;
-
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 public class InputActivity extends RxAppCompatActivity {
 
