@@ -1,25 +1,37 @@
 package com.debbi.mypassword.Adapter;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.debbi.mypassword.Activity.InputActivity;
 import com.debbi.mypassword.Model.AccountData;
 import com.debbi.mypassword.R;
+import com.jakewharton.rxbinding2.view.RxView;
 
+import io.reactivex.Observable;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.realm.Realm;
 import io.realm.RealmList;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
 
 public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.DetailsViewHolder> {
 
@@ -28,6 +40,7 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
     private SparseBooleanArray selectedItems = new SparseBooleanArray();
     private int prePosition = -1;
     private String mDomain;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public DetailsItemAdapter(Context context, RealmList<AccountData> realmList, String domain) {
         this.mContext = context;
@@ -77,6 +90,13 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
         return mRealmList.size();
     }
 
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        Log.d("aaa", "Detail onDetachedFromRecyclerView");
+        compositeDisposable.dispose();
+//        super.onDetachedFromRecyclerView(recyclerView);
+    }
+
     public class DetailsViewHolder extends RecyclerView.ViewHolder {
 
         private TextView date_textview;
@@ -85,6 +105,7 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
         private TextView option_menu_textview;
         private LinearLayout note_linear;
         private TextView note_textview;
+        private ImageButton idCopyButton, pwCopyButton;
 
         public DetailsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -95,6 +116,8 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
             this.option_menu_textview = itemView.findViewById(R.id.detail_item_option_textview);
             this.note_linear = itemView.findViewById(R.id.detail_item_notes_linear);
             this.note_textview = itemView.findViewById(R.id.detail_item_notes_textview);
+            this.idCopyButton = itemView.findViewById(R.id.detail_item_id_imgButton);
+            this.pwCopyButton = itemView.findViewById(R.id.detail_item_pw_imgButton);
 
             this.option_menu_textview.setOnClickListener(v -> {
 
@@ -166,6 +189,24 @@ public class DetailsItemAdapter extends RecyclerView.Adapter<DetailsItemAdapter.
                 prePosition = getAdapterPosition();
 
             });
+
+
+            Observable<String> copyID = RxView.clicks(idCopyButton).map(str -> id_textview.getText().toString() );
+            Observable<String> copyPW = RxView.clicks(pwCopyButton).map(str -> pw_textview.getText().toString() );
+
+            Disposable disposable = Observable.merge(copyID, copyPW).subscribe(str -> copyToClipboard(str));
+            compositeDisposable.add(disposable);
+
+        }
+
+        public void copyToClipboard(String str) {
+
+            // 클립보드 복사
+            ClipboardManager clipboardManager = (ClipboardManager) mContext.getSystemService(CLIPBOARD_SERVICE);
+            ClipData clipData = ClipData.newPlainText("label", str );
+            clipboardManager.setPrimaryClip(clipData);
+
+            Toast.makeText(mContext,"Copied to the clipboard", Toast.LENGTH_SHORT).show();
 
         }
     }

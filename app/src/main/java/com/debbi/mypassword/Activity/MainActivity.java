@@ -1,13 +1,16 @@
 package com.debbi.mypassword.Activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,6 +43,7 @@ import com.debbi.mypassword.Model.AccountData;
 import com.debbi.mypassword.Model.MyAccount;
 import com.debbi.mypassword.R;
 import com.debbi.mypassword.SpacesItemDecoration;
+import com.debbi.mypassword.Utils.RealmBackupRestore;
 import com.jakewharton.rxbinding2.widget.RxSearchView;
 
 
@@ -70,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
     private TextView noResultTextview;
     private AppBarLayout appBarLayout;
 
-    private FloatingActionButton add_floatingButton;
+    private FloatingActionButton add_floatingButton, backup_floatingButton;
 
     private Realm mRealm;
 
@@ -86,13 +90,29 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
 
     private boolean isAppbarFocus;
 
+    private RealmBackupRestore mBackup;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main2);
 
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this
+                    , new String[]{Manifest.permission.READ_EXTERNAL_STORAGE
+                            , Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    }
+                    , 1000);
+        } else {
+
+        }
+
         mRealm = Realm.getDefaultInstance();
         Log.d("aaa", "realm config = " + mRealm.getConfiguration());
+        mBackup = new RealmBackupRestore(this);
+
 
         mMyAccounts = mRealm.where(MyAccount.class).findAll().sort("date", Sort.DESCENDING);;
 //        mRealm.executeTransaction(new Realm.Transaction() {
@@ -126,8 +146,28 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
 
         initOnclickItemButtons();
 
+        backup_floatingButton.setOnClickListener(v -> {
+//            mBackup.backup();
+            mBackup.restore();
+        });
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1000:
+                for (int i = 0; i < grantResults.length; i++) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                }
+
+
+                break;
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -165,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                Log.d("aaa", "onFocusChange = " + hasFocus + " isIconified" + searchView.isIconified());
+                Log.d("aaa", "onFocusChange = " + hasFocus + " isIconified  =  " + searchView.isIconified());
                 if (hasFocus) {
                     isAppbarFocus = true;
                     appBarLayout.setExpanded(false);
@@ -335,12 +375,20 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
     public void onBackPressed() {
 
         if (!searchView.isIconified()) {
-            searchView.setIconified(true); // 아이콘으로 축소
+
+            searchView.setIconified(true); // 서치뷰 아이콘으로 축소
             setShowNoResult(false);
             itemAdapter.setDataRefresh(getcurrentList());
             appBarLayout.setExpanded(true);
 
-        } else {
+        } else if (CommonApplication.getMode()) {
+
+            setDefaultMode();
+            itemAdapter.clearSelectedItem();
+            itemAdapter.notifyDataSetChanged();
+
+        }else {
+
             super.onBackPressed();
         }
 
@@ -354,7 +402,9 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         imageView = findViewById(R.id.main_imageView);
         progressBar = findViewById(R.id.main_progress);
         cardView = findViewById(R.id.item_layout_cardview);
+
         add_floatingButton = findViewById(R.id.main_floating_add_button);
+        backup_floatingButton = findViewById(R.id.main_floating_backup_button);
 
         bottomLinear = findViewById(R.id.main_bottom_linear);
         itemRemoveButton = findViewById(R.id.main_item_remove_button);

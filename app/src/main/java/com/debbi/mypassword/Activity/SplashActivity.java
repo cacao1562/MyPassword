@@ -20,13 +20,16 @@ public class SplashActivity extends AppCompatActivity implements BiometricCallba
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        if (RootUtil.isDeviceRooted()) {
+//        if (RootUtil.isDeviceRooted()) {
+//
+//            showAlert("alert", "루팅된 기기입니다.");
+//            return;
+//        }
 
-            showAlert("alert", "루팅된 기기입니다.");
-            return;
-        }
-
-        authBio();
+//        authBio();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void authBio() {

@@ -1,6 +1,8 @@
 package com.debbi.mypassword;
 
 import android.app.Application;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.util.Log;
 
 import com.debbi.mypassword.Utils.RSA_Cipher;
@@ -44,21 +46,6 @@ public class CommonApplication extends Application {
         Date c = Calendar.getInstance().getTime();
         SimpleDateFormat df = new SimpleDateFormat(format);
         return df.format(c);
-
-    }
-
-    public static String decryptStr(String str) {
-
-        try {
-            String deDomain = RSA_Cipher.decrypt(str);
-            Log.d("aaa", "getDomain this = " + str );
-            Log.d("aaa", "getDomain deDomain = " + deDomain );
-            return deDomain;
-
-        }catch (Exception e) {
-            Log.d("aaa", "Exception RSA_Cipher.encrypt = " + e.toString() );
-            return "";
-        }
 
     }
 

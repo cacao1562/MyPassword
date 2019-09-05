@@ -1,5 +1,7 @@
 package com.debbi.mypassword.Activity;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import com.debbi.mypassword.Adapter.DetailsItemAdapter;
 import com.debbi.mypassword.Model.MyAccount;
 import com.debbi.mypassword.R;
+import com.jakewharton.rxbinding2.view.RxView;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -23,6 +26,7 @@ public class DetailsActivity extends AppCompatActivity {
     private Realm mRealm;
     private RecyclerView mRecyclerView;
     private ImageButton addButton;
+    private ImageButton idCopyButton, pwCopyButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +73,8 @@ public class DetailsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        mRecyclerView.setAdapter(null);
 
         if (!mRealm.isClosed()) {
             mRealm.close();

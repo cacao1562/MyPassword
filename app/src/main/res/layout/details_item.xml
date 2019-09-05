@@ -58,6 +58,18 @@
                 tools:text="id email id email"
                 />
 
+            <ImageButton
+                android:id="@+id/detail_item_id_imgButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginRight="16dp"
+                android:src="@drawable/ic_copy_outline_48"
+                android:scaleType="fitXY"
+                android:background="@drawable/ripple_background"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/detail_item_id_imageview"
+                app:layout_constraintBottom_toBottomOf="@+id/detail_item_id_imageview"/>
+
 
             <ImageView
                 android:id="@+id/detail_item_pw_imageview"
@@ -80,6 +92,18 @@
                 tools:text="password password"
                 />
 
+            <ImageButton
+                android:id="@+id/detail_item_pw_imgButton"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginRight="16dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_copy_outline_48"
+                android:background="@drawable/ripple_background"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/detail_item_pw_imageview"
+                app:layout_constraintBottom_toBottomOf="@+id/detail_item_pw_imageview"/>
+
             <TextView
                 android:id="@+id/detail_item_option_textview"
                 android:layout_width="45dp"
@@ -92,7 +116,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/detail_item_notes_linear"
-                app:layout_constraintVertical_bias="0.8"
+                app:layout_constraintVertical_bias="0.1"
                 android:layout_marginRight="10dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"

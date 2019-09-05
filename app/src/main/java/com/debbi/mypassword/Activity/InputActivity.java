@@ -6,8 +6,10 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.debbi.mypassword.CommonApplication;
@@ -22,6 +24,7 @@ import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 import org.w3c.dom.Text;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
@@ -36,6 +39,7 @@ public class InputActivity extends RxAppCompatActivity {
     private boolean isAddMode = false;
     private long mLastClickTime;
     private TextInputLayout id_layout;
+    private ImageButton clearButton1, clearButton2, clearButton3, clearButton4;
 
     private String extra_id;
     private String extra_pw;
@@ -53,9 +57,14 @@ public class InputActivity extends RxAppCompatActivity {
         input_note = findViewById(R.id.input_notes);
         id_layout = findViewById(R.id.main_id_layout1);
 
+        clearButton1 = findViewById(R.id.input_clear_imgbutton1);
+        clearButton2 = findViewById(R.id.input_clear_imgbutton2);
+        clearButton3 = findViewById(R.id.input_clear_imgbutton3);
+        clearButton4 = findViewById(R.id.input_clear_imgbutton4);
+
         mRealm = Realm.getDefaultInstance();
 
-        if (!TextUtils.isEmpty(getIntent().getStringExtra("domain")) ) {
+        if (!TextUtils.isEmpty(getIntent().getStringExtra("domain"))) {
             input_site.setText(getIntent().getStringExtra("domain"));
             input_site.setEnabled(false);
             id_layout.setBoxBackgroundColor(getResources().getColor(R.color.gray_disable));
@@ -77,9 +86,49 @@ public class InputActivity extends RxAppCompatActivity {
             input_note.setText(extra_note);
         }
 
-        Observable<TextViewTextChangeEvent> site_obs = RxTextView.textChangeEvents(input_site);
+        Observable<TextViewTextChangeEvent> site_obs =  RxTextView.textChangeEvents(input_site);
         Observable<TextViewTextChangeEvent> id_obs = RxTextView.textChangeEvents(input_id);
         Observable<TextViewTextChangeEvent> pw_obs = RxTextView.textChangeEvents(input_pw);
+        Observable<TextViewTextChangeEvent> note_obs = RxTextView.textChangeEvents(input_note);
+
+        Observable<EditText> clear1 = RxView.clicks(clearButton1).map(button -> input_site );
+        Observable<EditText> clear2 = RxView.clicks(clearButton2).map(button -> input_id);
+        Observable<EditText> clear3 = RxView.clicks(clearButton3).map(button -> input_pw);
+        Observable<EditText> clear4 = RxView.clicks(clearButton4).map(button -> input_note);
+
+        Observable.merge(clear1, clear2, clear3, clear4)
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(inputField -> {
+            inputField.setText("");
+        });
+
+
+        site_obs.map(txt -> txt.text().length())
+                .filter(mode -> !isAddMode)
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(length -> {
+                    clearButton1.setVisibility(length > 0 ? View.VISIBLE : View.INVISIBLE );
+                });
+        id_obs.map(txt -> txt.text().length())
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(length -> {
+                    clearButton2.setVisibility(length > 0 ? View.VISIBLE : View.INVISIBLE );
+                });
+        pw_obs.map(txt -> txt.text().length())
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(length -> {
+                    clearButton3.setVisibility(length > 0 ? View.VISIBLE : View.INVISIBLE );
+                });
+        note_obs.map(txt -> txt.text().length())
+                .compose(bindToLifecycle())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(length -> {
+                    clearButton4.setVisibility(length > 0 ? View.VISIBLE : View.INVISIBLE );
+                });
 
 
         Observable.combineLatest(
@@ -110,33 +159,33 @@ public class InputActivity extends RxAppCompatActivity {
 
         AccountData accountData = new AccountData();
         accountData.setAccount(this,
-                                input_id.getText().toString(),
-                                input_pw.getText().toString(),
-                                input_note.getText().toString(),
-                                CommonApplication.getDate("yyyyMMddHHmmss")
-                                );
+                input_id.getText().toString(),
+                input_pw.getText().toString(),
+                input_note.getText().toString(),
+                CommonApplication.getDate("yyyyMMddHHmmss")
+        );
 
         MyAccount results = mRealm.where(MyAccount.class).equalTo("domain", input_site.getText().toString()).findFirst();
 
         //detail 뷰에서 추가했을때 || 메인에서 이미 있는 이름으로 추가했을때 새로 만들지 않고 기존거에 추가
-        if (isAddMode || (results != null) ) {
+        if (isAddMode || (results != null)) {
 
             if (!TextUtils.isEmpty(extra_id)) {
 
                 for (AccountData data : results.accountData) {
 
-                    if (data.getAccount_ID(this).equals(extra_id) ) {
+                    if (data.getAccount_ID(this).equals(extra_id)) {
 
                         data.setAccount(this, input_id.getText().toString(), input_pw.getText().toString(), input_note.getText().toString(), CommonApplication.getDate("yyyyMMddHHmmss"));
                     }
                 }
 
-            }else {
+            } else {
 
                 results.accountData.add(accountData);
             }
 
-        }else {
+        } else {
 
             MyAccount myAccount = mRealm.createObject(MyAccount.class);
             myAccount.setDomain(input_site.getText().toString());
