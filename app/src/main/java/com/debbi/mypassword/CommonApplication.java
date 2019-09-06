@@ -1,16 +1,10 @@
 package com.debbi.mypassword;
 
-import android.app.Activity;
 import android.app.Application;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.Log;
 
 import androidx.appcompat.app.AlertDialog;
-
-import com.debbi.mypassword.Utils.RSA_Cipher;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,13 +16,19 @@ import io.realm.RealmConfiguration;
 public class CommonApplication extends Application {
 
     private static boolean deleteMode;
-
     public static void setMode(boolean mode) {
         deleteMode = mode;
     }
-
     public static boolean getMode() {
         return deleteMode;
+    }
+
+    private static boolean restoreMode;
+    public static void setRestoreMode(boolean mode) {
+        restoreMode = mode;
+    }
+    public static boolean getRestorMode() {
+        return restoreMode;
     }
 
     public static String PackageName;

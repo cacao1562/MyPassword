@@ -68,6 +68,10 @@ public class RealmBackupRestore {
         //Restore
         String restoreFilePath = EXPORT_REALM_PATH + "/" + EXPORT_REALM_FILE_NAME;
 
+//        Realm defaultRealm = Realm.getDefaultInstance();
+//        defaultRealm.close();
+//        Realm.deleteRealm(Realm.getDefaultInstance().getConfiguration());
+
         Log.d(TAG, "oldFilePath = " + restoreFilePath);
 
         copyBundledRealmFile(restoreFilePath, IMPORT_REALM_FILE_NAME);

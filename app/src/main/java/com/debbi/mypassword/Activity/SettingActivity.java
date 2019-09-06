@@ -125,6 +125,7 @@ public class SettingActivity extends AppCompatActivity {
 
                                     Log.d(TAG, "downloadFile  success  = ");
                                     mRealmBackup.restore();
+                                    CommonApplication.setRestoreMode(true);
 
                                 }).addOnFailureListener(err -> {
 

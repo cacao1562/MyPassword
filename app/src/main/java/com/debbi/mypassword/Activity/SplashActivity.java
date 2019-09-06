@@ -1,11 +1,13 @@
 package com.debbi.mypassword.Activity;
 
 import android.content.Intent;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.debbi.mypassword.R;
+import com.debbi.mypassword.Utils.RootUtil;
 import com.debbi.mypassword.biometric.BiometricCallback;
 import com.debbi.mypassword.biometric.BiometricManager;
 import com.debbi.mypassword.biometric.BiometricUtils;
@@ -19,16 +21,16 @@ public class SplashActivity extends AppCompatActivity implements BiometricCallba
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-//        if (RootUtil.isDeviceRooted()) {
-//
-//            showAlert("alert", "루팅된 기기입니다.");
-//            return;
-//        }
+        if (RootUtil.isDeviceRooted()) {
 
-//        authBio();
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+            showAlert("alert", "루팅된 기기입니다.");
+            return;
+        }
+
+        authBio();
+//        Intent intent = new Intent(this, MainActivity.class);
+//        startActivity(intent);
+//        finish();
     }
 
     private void authBio() {

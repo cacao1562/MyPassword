@@ -2,21 +2,11 @@ package com.debbi.mypassword.Activity;
 
 import android.Manifest;
 import android.app.ActivityOptions;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.Nullable;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.core.app.ActivityCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -29,21 +19,32 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.debbi.mypassword.Adapter.ItemAdapter;
 import com.debbi.mypassword.CallbackItemclick;
 import com.debbi.mypassword.CommonApplication;
-import com.debbi.mypassword.Adapter.ItemAdapter;
 import com.debbi.mypassword.Model.AccountData;
 import com.debbi.mypassword.Model.MyAccount;
 import com.debbi.mypassword.R;
 import com.debbi.mypassword.SpacesItemDecoration;
 import com.debbi.mypassword.Utils.RealmBackupRestore;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jakewharton.rxbinding2.widget.RxSearchView;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
 
         getSupportActionBar().setTitle(null);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         progressBar.setVisibility(View.VISIBLE);
 
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         getMenuInflater().inflate(R.menu.search, toolbar.getMenu());
         MenuItem searchItem = menu.findItem(R.id.action_search);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_fingerprint);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
 
         searchView = (android.widget.SearchView) searchItem.getActionView();
         searchView.setQueryHint("Search ");
@@ -575,6 +575,64 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (CommonApplication.getRestorMode()) {
+
+            Log.d("MainActivity", "onResume");
+            CommonApplication.setRestoreMode(false);
+//            mRealm = Realm.getDefaultInstance();
+
+//            Realm defaultRealm = Realm.getDefaultInstance();
+//            mRealm.close();
+//            // Delete default realm file
+////            Realm.deleteRealm(Realm.getDefaultInstance().getConfiguration());
+//
+//            RealmConfiguration conf = new RealmConfiguration.Builder()
+//                    .deleteRealmIfMigrationNeeded()
+//                    .build();
+//            Realm.setDefaultConfiguration(conf);
+////            mRealm.close();
+//            mRealm = Realm.getInstance(conf);
+//            mMyAccounts = mRealm.where(MyAccount.class).findAll();;
+////            Log.d("MainActivity", "result size = " + mMyAccounts.size() );
+////            itemAdapter.notifyDataSetChanged();
+//            itemAdapter.setDataRefresh(getcurrentList());
+//            mRealm.refresh();
+
+
+
+            // Restore default from backup file
+//            Realm backup = Realm.getInstance(MyApplication.getBackupConfiguration());
+//            File defaultDB = new File(realmPath(), MyApplication.REALM_NAME_DEFAULT);
+//            try {
+//                backup.writeCopyTo(defaultDB);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            backup.close();
+
+            // Reboot app
+//            Intent mStartActivity = new Intent(getApplicationContext(), MainActivity.class);
+//            int mPendingIntentId = 123456;
+//            PendingIntent mPendingIntent = PendingIntent.getActivity(getApplicationContext(), mPendingIntentId, mStartActivity, PendingIntent.FLAG_CANCEL_CURRENT);
+//            AlarmManager mgr = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+//            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+//            System.exit(0);
+
+
+            PackageManager packageManager = this.getPackageManager();
+            Intent intent = packageManager.getLaunchIntentForPackage(this.getPackageName());
+            ComponentName componentName = intent.getComponent();
+            Intent mainIntent = Intent.makeRestartActivityTask(componentName);
+//            mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            this.startActivity(mainIntent);
+            Runtime.getRuntime().exit(0);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 
@@ -588,4 +646,5 @@ public class MainActivity extends AppCompatActivity implements CallbackItemclick
         }
 
     }
+
 }
